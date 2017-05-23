@@ -1,0 +1,4 @@
+cron:
+- description: Check for Wonder Woman listing
+  url: /tasks/check-for-WW
+  schedule: every 30 mins
