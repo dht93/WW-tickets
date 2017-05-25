@@ -48,5 +48,5 @@ def check_for_keyword(keyword):
 		send_message(MESSAGE)
 		return True
 	else:
-		print "no cigar"
+		# print "no cigar"
 		return False

@@ -1,4 +1,8 @@
 cron:
 - description: Check for Wonder Woman listing
   url: /tasks/check-for-WW
-  schedule: every 30 mins
+  schedule: every 60 mins
+
+- description: Check for Wonder Woman Rotten Tomatoes Score
+  url: /tasks/check-for-rt-score
+  schedule: every 100 mins
