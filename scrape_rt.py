@@ -1,8 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 from send_message import send_message
+from other_server_urls import UPDATE_RT
 
 MESSAGE = "Wonder Woman RT score out!"
+
+
+def update_rt_sent():
+	r = requests.get(UPDATE_RT)
 
 def check_for_score(url):
 
@@ -26,3 +31,4 @@ def check_for_score(url):
 			print "Score not yet out"
 		if score != None:
 			send_message(MESSAGE)
+			update_rt_sent()

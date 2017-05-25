@@ -2,9 +2,13 @@ import requests
 from bs4 import BeautifulSoup
 from send_message import send_message
 # import urllib2
+from other_server_urls import UPDATE_BMS
 
 
 MESSAGE = "Wonder Woman booking is live!!"
+
+def update_bms_sent():
+	r = requests.get(UPDATE_BMS)
 
 #scrape1 scrapes the movie listing page for a specific multiplex
 def scrape1(url):
@@ -46,6 +50,7 @@ def check_for_keyword(keyword):
 	print keyword
 	if "wonder woman" in keyword or "wonder" in keyword or "woman" in keyword:
 		send_message(MESSAGE)
+		update_bms_sent()
 		return True
 	else:
 		# print "no cigar"

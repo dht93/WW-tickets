@@ -5,6 +5,8 @@ import datetime
 from scrapeBMS import scrape1, scrape2
 from scrape_rt import check_for_score
 from google.cloud import logging
+import requests
+from other_server_urls import GET_STATUS
 
 logging_client = logging.Client()
 logger = logging_client.logger("tracker")
@@ -30,26 +32,42 @@ def get_time_stamp_value(increment=0):
 	timestamp_val = str(date.year) + month + day
 	return timestamp_val
 
+def get_status():
+	r = requests.get(GET_STATUS)
+	print r.text
+	resp = r.text
+	resp = resp.strip().split(",")
+	bms_sent = resp[0]
+	rt_sent = resp[1]
+	return bms_sent,rt_sent
+
+
 @app.route('/')
 def hello():
 	return 'WW!'
 
 @app.route('/tasks/check-for-WW')
 def cron():
-	#check for all english movies listing
-	scrape2(all_english_url)
+	bms_sent,rt_sent = get_status()
+	if bms_sent == "0":
+		print "message not yet sent"
+		#check for all english movies listing
+		scrape2(all_english_url)
 
-	#check for the next few days at Prasads
-	for i in range(CHECK_FOR_DAYS):
-		date = get_time_stamp_value(i)
-		url = base_url+date
-		# print url
-		scrape1(url)
+		#check for the next few days at Prasads
+		for i in range(CHECK_FOR_DAYS):
+			date = get_time_stamp_value(i)
+			url = base_url+date
+			# print url
+			scrape1(url)
 	return '200 OK',200
 
 @app.route('/tasks/check-for-rt-score')
 def rt_score_cron():
-	check_for_score(rt_url)
+	bms_sent,rt_sent = get_status()
+	if rt_sent=="0":
+		print "message not yet sent"
+		check_for_score(rt_url)
 	return '200 OK',200
 
 
