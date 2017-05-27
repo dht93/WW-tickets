@@ -16,15 +16,21 @@ def log(params):
 
 
 base_url = "https://in.bookmyshow.com/buytickets/prasads-hyderabad/cinema-hyd-PRHN-MT/"
-
+base_url_big_screen = "https://in.bookmyshow.com/buytickets/prasads-large-screen/cinema-hyd-PRHY-MT/"
 all_english_url = "https://in.bookmyshow.com/hyderabad/movies/english"
 
 rt_url = "https://www.rottentomatoes.com/m/wonder_woman_2017"
 
-CHECK_FOR_DAYS = 5
+CHECK_FOR_DAYS = 2
+
+word_list = ["wonder woman", "wonder", "woman"]
+
+#make this reusable
+release_date = datetime.datetime(2017,6,2)
 
 def get_time_stamp_value(increment=0):
-	date = datetime.datetime.now().date()
+	# date = datetime.datetime.now().date()
+	date = release_date
 	if increment!=0:
 		date+=datetime.timedelta(days=increment)
 	month = "%02d" % date.month
@@ -52,14 +58,30 @@ def cron():
 	if bms_sent == "0":
 		print "message not yet sent"
 		#check for all english movies listing
-		scrape2(all_english_url)
+		scrape2(all_english_url, word_list)
 
-		#check for the next few days at Prasads
+	bms_sent,rt_sent = get_status()	
+	#check for the next few days at Prasads
+	if bms_sent == "0":
 		for i in range(CHECK_FOR_DAYS):
 			date = get_time_stamp_value(i)
 			url = base_url+date
 			# print url
-			scrape1(url)
+			found = scrape1(url, word_list)
+			if found == True:
+				break
+
+	bms_sent,rt_sent = get_status()	
+	#check for the next few days at Prasads Big Screen
+	if bms_sent == "0":
+		for i in range(CHECK_FOR_DAYS):
+			date = get_time_stamp_value(i)
+			url = base_url_big_screen+date
+			# print url
+			found = scrape1(url, word_list)
+			if found == True:
+				break
+
 	return '200 OK',200
 
 @app.route('/tasks/check-for-rt-score')
