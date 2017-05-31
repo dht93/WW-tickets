@@ -7,6 +7,8 @@ from scrape_rt import check_for_score
 from google.cloud import logging
 import requests
 from other_server_urls import GET_STATUS
+# from send_email import send_email
+# from sendgrid_key import key
 
 logging_client = logging.Client()
 logger = logging_client.logger("tracker")
@@ -17,16 +19,20 @@ def log(params):
 
 base_url = "https://in.bookmyshow.com/buytickets/prasads-hyderabad/cinema-hyd-PRHN-MT/"
 base_url_big_screen = "https://in.bookmyshow.com/buytickets/prasads-large-screen/cinema-hyd-PRHY-MT/"
+
+urls_to_scrape = [base_url,base_url_big_screen]
+
 all_english_url = "https://in.bookmyshow.com/hyderabad/movies/english"
 
 rt_url = "https://www.rottentomatoes.com/m/wonder_woman_2017"
 
-CHECK_FOR_DAYS = 2
+CHECK_FOR_DAYS = 4
 
 word_list = ["wonder woman", "wonder", "woman"]
 
+CHECK_ALL_MOVIES_PAGE = False
 #make this reusable
-release_date = datetime.datetime(2017,6,2)
+# release_date = datetime.datetime(2017,6,2)
 
 def get_time_stamp_value(increment=0):
 	# date = datetime.datetime.now().date()
@@ -38,6 +44,7 @@ def get_time_stamp_value(increment=0):
 	timestamp_val = str(date.year) + month + day
 	return timestamp_val
 
+#check if message is already sent or not, to prevent multiple messages being sent
 def get_status():
 	r = requests.get(GET_STATUS)
 	print r.text
@@ -54,33 +61,24 @@ def hello():
 
 @app.route('/tasks/check-for-WW')
 def cron():
-	bms_sent,rt_sent = get_status()
-	if bms_sent == "0":
-		print "message not yet sent"
-		#check for all english movies listing
-		scrape2(all_english_url, word_list)
+	if CHECK_ALL_MOVIES_PAGE == True:
+		bms_sent,rt_sent = get_status()
+		if bms_sent == "0":
+			print "message not yet sent"
+			#check for all english movies listing
+			scrape2(all_english_url, word_list)
 
-	bms_sent,rt_sent = get_status()	
-	#check for the next few days at Prasads
-	if bms_sent == "0":
-		for i in range(CHECK_FOR_DAYS):
-			date = get_time_stamp_value(i)
-			url = base_url+date
-			# print url
-			found = scrape1(url, word_list)
-			if found == True:
-				break
-
-	bms_sent,rt_sent = get_status()	
-	#check for the next few days at Prasads Big Screen
-	if bms_sent == "0":
-		for i in range(CHECK_FOR_DAYS):
-			date = get_time_stamp_value(i)
-			url = base_url_big_screen+date
-			# print url
-			found = scrape1(url, word_list)
-			if found == True:
-				break
+	for url in urls_to_scrape:
+		bms_sent,rt_sent = get_status()	
+		#check for the next few days at Prasads
+		if bms_sent == "0":
+			for i in range(CHECK_FOR_DAYS):
+				date = get_time_stamp_value(i)
+				url = url+date
+				# print url
+				found = scrape1(url, word_list)
+				if found == True:
+					break
 
 	return '200 OK',200
 
@@ -92,6 +90,13 @@ def rt_score_cron():
 		check_for_score(rt_url)
 	return '200 OK',200
 
+# @app.route('/tasks/send-email')
+# def send_email_cron():
+# 	try:
+# 		send_email(key,"dummy","dummy_msg")
+# 	except Exception as e:
+# 		print str(e)
+# 	return '200 OK',200
 
 @app.route('/redirect-to-repo')
 def redirect_to_repo():

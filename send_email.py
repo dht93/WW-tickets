@@ -6,11 +6,11 @@ def send_email(key,subject,message):
 	try:
 		message = message
 		sg = sendgrid.SendGridAPIClient(apikey=key)	
-		from_email = Email(from_email)
-		to_email = Email(to_email)
+		from_email1 = Email(from_email)
+		to_email1 = Email(to_email)
 		subject = subject
 		content = Content("text/html", message)
-		mail = Mail(from_email, subject, to_email, content)
+		mail = Mail(from_email1, subject, to_email1, content)
 		response = sg.client.mail.send.post(request_body=mail.get())
 		print(response.status_code)
 		print(response.body)

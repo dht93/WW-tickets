@@ -3,6 +3,10 @@ cron:
   url: /tasks/check-for-WW
   schedule: every 60 mins
 
-- description: Check for Wonder Woman Rotten Tomatoes Score
-  url: /tasks/check-for-rt-score
-  schedule: every 100 mins
+# - description: Check for Wonder Woman Rotten Tomatoes Score
+#   url: /tasks/check-for-rt-score
+#   schedule: every 100 mins
+
+# - description: dummy mail sender
+#   url: /tasks/send-email
+#   schedule: every 24 hours
